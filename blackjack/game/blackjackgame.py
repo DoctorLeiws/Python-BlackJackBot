@@ -5,7 +5,7 @@ from enum import Enum
 
 import blackjack.errors as errors
 from blackjack.game import Player, Dealer, Deck
-from database.remoteApi import RemoteApi
+from remoteApi import RemoteApi
 
 class BlackJackGame(object):
     """Representation of a game of Black Jack - The equivalent of a Black Jack casino table."""
