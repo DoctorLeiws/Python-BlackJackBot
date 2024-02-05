@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from telegram.error import Unauthorized, BadRequest, TimedOut, NetworkError, ChatMigrated, TelegramError
+from telegram.error import BadRequest, TimedOut, NetworkError, ChatMigrated, TelegramError
 from blackjackbot.gamestore import GameStore
 
 logger = logging.getLogger(__name__)
@@ -10,14 +10,6 @@ logger = logging.getLogger(__name__)
 def error_handler(update, context):
     try:
         raise context.error
-    except Unauthorized as e:
-        # remove update.message.chat_id from conversation list
-        logger.error("The update {} raised the following 'Unauthorized' exception: {}".format(update, e))
-        if e.message == "Forbidden: bot was blocked by the user":
-            GameStore().remove_game(update.effective_chat.id)
-        elif e.message == "Forbidden: bot was kicked from the supergroup chat" or e.message == "Forbidden: bot was kicked from the group chat":
-            GameStore().remove_game(update.effective_chat.id)
-
     except BadRequest as e:
         # handle malformed requests - read more below!
         logger.error("The update {} raised the following 'BadRequest' exception: {}".format(update, e))

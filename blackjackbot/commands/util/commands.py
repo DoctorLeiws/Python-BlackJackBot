@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from telegram import ForceReply, ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
-
-from blackjackbot.commands.admin.functions import notify_admins
+from telegram import ForceReply , InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 from blackjackbot.lang import translate
 from blackjackbot.util.userstate import UserState
 from database import Database
@@ -97,7 +96,6 @@ def comment_text(update, context):
 
     text = update.effective_message.text
 
-    notify_admins("New comment from a user:\n\n{}\n\n{}".format(text, userdata), context)
     update.message.reply_text(translate("received_comment", lang_id))
 
     context.user_data["state"] = UserState.IDLE

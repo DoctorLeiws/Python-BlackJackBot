@@ -8,7 +8,7 @@ from blackjack.game import BlackJackGame
 from blackjackbot.lang import Translator
 
 
-def remove_inline_keyboard(update, context):
+async def remove_inline_keyboard(update, context):
     """
     Removes the inline keyboard for a given message
     :param update: PTB update object
@@ -17,7 +17,7 @@ def remove_inline_keyboard(update, context):
     """
     if update.effective_message.from_user.id == context.bot.id:
         try:
-            update.effective_message.edit_reply_markup(reply_markup=None)
+            await update.effective_message.edit_reply_markup(reply_markup=None)
         except Exception:
             # When the message already has no reply markup, simply ignore the exception
             # We can't check for message.reply_markup, because it might have been removed earlier
