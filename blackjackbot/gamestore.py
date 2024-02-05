@@ -94,6 +94,7 @@ class GameStore(object):
 
             game_older_than_10_mins = game.datetime_started < (now - timedelta(minutes=stale_timeout_min))
             if game_older_than_10_mins:
+                print("Killing game with id {} because it's stale for > {} mins".format(game.id, stale_timeout_min))
                 logging.info("Killing game with id {} because it's stale for > {} mins".format(game.id, stale_timeout_min))
                 # TODO notify chat
                 remove_chat_ids.append(chat_id)

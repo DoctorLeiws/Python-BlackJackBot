@@ -6,7 +6,7 @@ import pathlib
 
 from telegram.ext import Updater, JobQueue
 from telegram.ext import ApplicationBuilder
-
+from telegram import Update
 import config
 from blackjackbot import handlers, error_handler
 from blackjackbot.gamestore import GameStore
@@ -27,25 +27,22 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logging.getLogger("telegram").setLevel(logging.ERROR)
 logging.getLogger("apscheduler").setLevel(logging.ERROR)
 
-updater = ApplicationBuilder().token(config.BOT_TOKEN).build()
+application = ApplicationBuilder().token(config.BOT_TOKEN).build()
 
-for handler in handlers:
-    updater.add_handler(handler)
-
-updater.add_error_handler(error_handler)
 
 # Set up jobs
-def stale_game_cleaner(context):
+async def stale_game_cleaner(context):
     gs = GameStore()
     gs.cleanup_stale_games()
 
+def main() -> None:
+    for handler in handlers:
+        application.add_handler(handler)
+        application.add_error_handler(error_handler)
+    application.job_queue.run_repeating(callback=stale_game_cleaner, interval=300, first=300)
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info("Bot started as @{}".format(application.bot.username))
+    logger.info("Started polling!")
 
-updater.job_queue.run_repeating(callback=stale_game_cleaner, interval=300, first=300)
-
-
-updater.run_polling()
-logger.info("Started polling!")
-   
-
-logger.info("Bot started as @{}".format(updater.bot.username))
-updater.idle()
+if __name__ == '__main__':
+    main()

@@ -37,7 +37,7 @@ async def start_callback(update, context):
             return
     except NoActiveGameException:
         await update.callback_query.answer(translator("mp_no_created_game_callback"))
-        remove_inline_keyboard(update, context)
+        await remove_inline_keyboard(update, context)
         return
 
     try:

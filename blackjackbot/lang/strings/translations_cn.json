@@ -8,6 +8,8 @@
   "inline_keyboard_hit": "要牌",
   "inline_keyboard_stand": "停牌",
   "inline_keyboard_join": "加入",
+  "inline_keyboard_invite": "邀请",
+  "inline_keyboard_bet": "下注筹码数：{}",
   "inline_keyboard_start": "开始",
   "inline_keyboard_newgame": "新游戏",
   "card_ace": "A",

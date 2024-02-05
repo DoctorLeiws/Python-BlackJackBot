@@ -139,9 +139,11 @@ def get_join_keyboard(game_id, lang_id):
     :return:
     """
     translator = Translator(lang_id)
+    invite_button = InlineKeyboardButton(text=translator("inline_keyboard_invite"), callback_data="join_{}".format(game_id))
+    bet_button = InlineKeyboardButton(text=translator("inline_keyboard_bet").format(10), callback_data="join_{}".format(game_id))
     join_button = InlineKeyboardButton(text=translator("inline_keyboard_join"), callback_data="join_{}".format(game_id))
     start_button = InlineKeyboardButton(text=translator("inline_keyboard_start"), callback_data="start_{}".format(game_id))
-    return InlineKeyboardMarkup(inline_keyboard=[[join_button, start_button]])
+    return InlineKeyboardMarkup(inline_keyboard=[[join_button, start_button],[invite_button,bet_button]])
 
 
 def get_start_keyboard(lang_id):
