@@ -46,11 +46,11 @@ async def players_turn(update, context):
     if player.has_blackjack():
         text = (translator("your_cards_are") + "\n\n" + translator("got_blackjack")).format(user_mention, player.cardvalue, player_cards)
         await update.effective_message.reply_text(text=text, parse_mode=ParseMode.HTML, reply_markup=None)
-        next_player(update, context)
+        await next_player(update, context)
     elif player.cardvalue == 21:
         text = (translator("your_cards_are") + "\n\n" + translator("got_21")).format(user_mention, player.cardvalue, player_cards)
         await update.effective_message.reply_text(text=text, parse_mode=ParseMode.HTML, reply_markup=None)
-        next_player(update, context)
+        await next_player(update, context)
     else:
         text = translator("your_cards_are").format(user_mention, player.cardvalue, player_cards)
         await update.effective_message.reply_text(text=text, parse_mode=ParseMode.HTML, reply_markup=get_game_keyboard(game.id, lang_id))

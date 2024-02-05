@@ -104,14 +104,11 @@ async def join_callback(update, context):
 
     if not await is_button_affiliated(update, context, game, lang_id):
         return
-
     try:
         game.add_player(user.id, user.first_name)
         await update.effective_message.edit_text(text=translator("mp_request_join").format(game.get_player_list()),
                                            reply_markup=get_join_keyboard(game.id, lang_id))
         await update.callback_query.answer(translator("mp_join_callback").format(user.first_name))
-
-        # If players are full, replace join keyboard with start keyboard
         if len(game.players) >= game.MAX_PLAYERS:
             await update.effective_message.edit_reply_markup(reply_markup=get_start_keyboard(lang_id))
     except errors.GameAlreadyRunningException:
