@@ -28,13 +28,13 @@ start_callback_handler = CallbackQueryHandler(game.start_callback, pattern=r"^st
 newgame_callback_handler = CallbackQueryHandler(game.newgame_callback, pattern=r"^newgame$")
 language_callback_handler = CallbackQueryHandler(settings.language_callback, pattern=r"^lang_([a-z]{2}(?:-[a-z]{2})?)$")
 reset_stats_callback_handler = CallbackQueryHandler(util.reset_stats_callback, pattern=r"^reset_stats_(confirm|cancel)$")
-
+recharge_callback_handler = CallbackQueryHandler(game.recharge_callback, pattern=r"^recharge$")
 inlinequery_handler = InlineQueryHandler(util.inlinequery)
 
 handlers = [banned_user_handler,adjustbet_callback_handler,back_callback_handler,enterbet_callback_handler,
             start_command_handler, stop_command_handler, join_callback_handler, hit_callback_handler,
             stand_callback_handler, start_callback_handler, language_command_handler, stats_command_handler,
-            newgame_callback_handler, language_callback_handler,
+            newgame_callback_handler, language_callback_handler,recharge_callback_handler,
             comment_command_handler, comment_text_command_handler,
             resetstats_command_handler, reset_stats_callback_handler,
             inlinequery_handler

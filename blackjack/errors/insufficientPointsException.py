@@ -1,0 +1,2 @@
+class InsufficientPointsException(Exception):
+    pass

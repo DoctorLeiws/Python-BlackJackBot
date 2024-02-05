@@ -5,7 +5,7 @@ from enum import Enum
 
 import blackjack.errors as errors
 from blackjack.game import Player, Dealer, Deck
-
+from database.remoteApi import RemoteApi
 
 class BlackJackGame(object):
     """Representation of a game of Black Jack - The equivalent of a Black Jack casino table."""
@@ -104,12 +104,10 @@ class BlackJackGame(object):
         return self.players[self._current_player]
 
     def add_player(self, user_id, first_name):
-        """
-        Add a new player to the game as long as it didn't start yet
-        :param user_id: The user_id of the player
-        :param first_name: The player's first_name
-        :return:
-        """
+        balance = RemoteApi().get_balance(user_id)
+        if not balance:
+            print("balance is none",balance)
+        points = balance.get('amount')
         if self.running:
             raise errors.GameAlreadyRunningException("Not adding player, the game is already on!")
 
@@ -118,7 +116,10 @@ class BlackJackGame(object):
 
         if len(self.players) >= self.MAX_PLAYERS:
             raise errors.MaxPlayersReachedException
-
+        
+        if  points < 100:
+            raise errors.InsufficientPointsException
+        
         player = Player(user_id, first_name)
         self.logger.debug("Adding new player: {}!".format(player))
         self.players.append(player)

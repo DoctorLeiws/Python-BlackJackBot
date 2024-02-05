@@ -2,7 +2,7 @@
 """Utility functions for performing chat related tasks"""
 import html
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import KeyboardButton,ReplyKeyboardMarkup,InlineKeyboardButton, InlineKeyboardMarkup,WebAppInfo
 from telegram import InlineQueryResultArticle,InputTextMessageContent
 
 from blackjack.game import BlackJackGame
@@ -131,13 +131,17 @@ def get_game_keyboard(game_id, lang_id):
     return InlineKeyboardMarkup(inline_keyboard=[[one_more_button, no_more_button]])
 
 
-def get_join_keyboard(game_id, lang_id,points):
+def get_join_keyboard(game_id, lang_id, points):
     translator = Translator(lang_id)
+    #  Web app buttons can be used in private chats only
+    recharge_button = KeyboardButton(text=translator("inline_keyboard_recharge"), web_app=WebAppInfo(url="https://baidu.com"))
     invite_button = InlineKeyboardButton(text=translator("inline_keyboard_invite"), switch_inline_query='Invitate')
     bet_button = InlineKeyboardButton(text=translator("inline_keyboard_bet").format(points), callback_data="enterbet_{}".format(points))
     join_button = InlineKeyboardButton(text=translator("inline_keyboard_join"), callback_data="join_{}".format(game_id))
     start_button = InlineKeyboardButton(text=translator("inline_keyboard_start"), callback_data="start_{}".format(game_id))
-    return InlineKeyboardMarkup(inline_keyboard=[[join_button, start_button],[invite_button,bet_button]])
+    buttons = [[join_button, start_button], [invite_button, bet_button], [recharge_button]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+    # recharge_button = InlineKeyboardButton(text=translator("inline_keyboard_recharge"), callback_data="recharge")
 
 
 def get_start_keyboard(lang_id):
@@ -152,6 +156,12 @@ def get_bet_keyboard(points, lang_id):
     back = InlineKeyboardButton(text="Back", callback_data="back")
     buttons = [[de_10, p, plus_10], [back]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_recharge_keyboard(user_id, lang_id):
+    translator = Translator(lang_id)
+    recharge_button = InlineKeyboardButton(text=translator("inline_keyboard_recharge"), callback_data="recharge_{}".format(user_id))
+    back_button = InlineKeyboardButton(text=translator("inline_keyboard_back"), callback_data="back")
+    return InlineKeyboardMarkup(inline_keyboard=[[recharge_button, back_button]])
 
 async def inlinequery(update, context):
     # 需要注意的是开启inlinequery需要bot开启内联模式

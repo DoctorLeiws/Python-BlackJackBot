@@ -4,7 +4,7 @@ from telegram.constants import ParseMode
 
 import blackjack.errors as errors
 from blackjack.game import BlackJackGame
-from blackjackbot.commands.util import html_mention, get_game_keyboard, get_bet_keyboard,get_join_keyboard, get_start_keyboard, remove_inline_keyboard
+from blackjackbot.commands.util import html_mention, get_game_keyboard, get_bet_keyboard,get_recharge_keyboard,get_join_keyboard, get_start_keyboard, remove_inline_keyboard
 from blackjackbot.commands.util.decorators import needs_active_game
 from blackjackbot.errors import NoActiveGameException
 from blackjackbot.gamestore import GameStore
@@ -51,6 +51,9 @@ async def start_callback(update, context):
         return
     except errors.InsufficientPermissionsException:
         await update.callback_query.answer(translator("mp_only_creator_start_callback").format(user.first_name))
+        return
+    except errors.InsufficientPointsException:
+        await update.callback_query.answer(translator("mp_insufficient_points_callback").format(user.first_name,10))
         return
 
     if game.type != BlackJackGame.Type.SINGLEPLAYER:
@@ -119,6 +122,9 @@ async def join_callback(update, context):
         await update.callback_query.answer(translator("mp_max_players_callback"))
     except errors.PlayerAlreadyExistingException:
         await update.callback_query.answer(translator("mp_already_joined_callback"))
+    except errors.InsufficientPointsException:
+        await update.callback_query.answer(translator("mp_insufficient_points_callback").format(user.first_name,10))
+
 
 
 @needs_active_game
@@ -213,3 +219,9 @@ async def back_callback(update, context):
     lang_id = Database().get_lang_id(chat.id)
     points = Database().get_bet(user.id) 
     await update.effective_message.edit_reply_markup(reply_markup=get_join_keyboard(game.id,lang_id,points))
+
+async def recharge_callback(update, context):
+    user = update.effective_user
+    chat = update.effective_chat
+    lang_id = Database().get_lang_id(chat.id)
+    # await update.effective_message.edit_reply_markup(reply_markup=get_recharge_keyboard(user.id, lang_id))
