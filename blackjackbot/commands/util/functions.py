@@ -3,10 +3,10 @@
 import html
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineQueryResultArticle,InputTextMessageContent
 
 from blackjack.game import BlackJackGame
 from blackjackbot.lang import Translator
-
 
 async def remove_inline_keyboard(update, context):
     """
@@ -131,16 +131,10 @@ def get_game_keyboard(game_id, lang_id):
     return InlineKeyboardMarkup(inline_keyboard=[[one_more_button, no_more_button]])
 
 
-def get_join_keyboard(game_id, lang_id):
-    """
-    Generates a join keyboard translated into the given language
-    :param game_id: A unique identifier for each game
-    :param lang_id: The language identifier for a specific chat
-    :return:
-    """
+def get_join_keyboard(game_id, lang_id,points):
     translator = Translator(lang_id)
-    invite_button = InlineKeyboardButton(text=translator("inline_keyboard_invite"), callback_data="join_{}".format(game_id))
-    bet_button = InlineKeyboardButton(text=translator("inline_keyboard_bet").format(10), callback_data="join_{}".format(game_id))
+    invite_button = InlineKeyboardButton(text=translator("inline_keyboard_invite"), switch_inline_query='Invitate')
+    bet_button = InlineKeyboardButton(text=translator("inline_keyboard_bet").format(points), callback_data="enterbet_{}".format(points))
     join_button = InlineKeyboardButton(text=translator("inline_keyboard_join"), callback_data="join_{}".format(game_id))
     start_button = InlineKeyboardButton(text=translator("inline_keyboard_start"), callback_data="start_{}".format(game_id))
     return InlineKeyboardMarkup(inline_keyboard=[[join_button, start_button],[invite_button,bet_button]])
@@ -150,3 +144,26 @@ def get_start_keyboard(lang_id):
     translator = Translator(lang_id)
     start_button = InlineKeyboardButton(text=translator("inline_keyboard_start"), callback_data="start")
     return InlineKeyboardMarkup(inline_keyboard=[[start_button]])
+
+def get_bet_keyboard(points, lang_id):
+    de_10 = InlineKeyboardButton(text='-', callback_data="adjustbet_-10")
+    p = InlineKeyboardButton(text=points, callback_data="None")
+    plus_10 = InlineKeyboardButton(text='+', callback_data="adjustbet_10")
+    back = InlineKeyboardButton(text="Back", callback_data="back")
+    buttons = [[de_10, p, plus_10], [back]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+async def inlinequery(update, context):
+    # 需要注意的是开启inlinequery需要bot开启内联模式
+    results = []
+    invite_link = "https://telegram.me/tubexerbot?start={}".format(update.effective_user.id)  
+    results.append(
+            InlineQueryResultArticle(
+                id='2', 
+                title='猜牌', 
+                input_message_content=InputTextMessageContent('诚邀您加入游戏，请点击以下链接加入房间：' + invite_link),
+                description='通过对于庄家手中牌的猜测客户获得丰厚的筹码奖励哦~',
+                thumb_url='https://www.hercules.ink/logo.png'
+            )
+    ) 
+    await update.inline_query.answer(results)

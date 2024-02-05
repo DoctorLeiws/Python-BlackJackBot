@@ -69,6 +69,7 @@ class Database(object):
                        "'games_played' INTEGER DEFAULT 0,"
                        "'games_won' INTEGER DEFAULT 0,"
                        "'games_tie' INTEGER DEFAULT 0,"
+                       "'bet' INTEGER DEFAULT 10,"  
                        "'last_played' INTEGER DEFAULT 0,"
                        "'banned' INTEGER DEFAULT 0,"
                        "PRIMARY KEY('user_id'));")
@@ -157,7 +158,7 @@ class Database(object):
             return "en"
 
         return result["lang_id"]
-
+    
     def set_lang_id(self, chat_id, lang_id):
         if lang_id is None:
             lang_id = "en"
@@ -167,7 +168,19 @@ class Database(object):
         except sqlite3.IntegrityError:
             self.cursor.execute("UPDATE chats SET lang_id = ? WHERE chat_id = ?;", [lang_id, chat_id])
         self.connection.commit()
-
+    
+       # 更新用户下注金额
+    def set_bet(self, user_id, bet):
+        self.cursor.execute("UPDATE users SET bet=? WHERE user_id=?;", [bet, str(user_id)])
+        self.connection.commit()
+        
+    def get_bet(self, user_id):
+        self.cursor.execute("SELECT bet FROM users WHERE user_id=?;", [str(user_id)])
+        result = self.cursor.fetchone()
+        if not result or len(result) <= 0:
+            return 0
+        return int(result["bet"])
+    
     def add_user(self, user_id, lang_id, first_name, last_name, username):
         if self.is_user_saved(user_id):
             return
@@ -175,7 +188,7 @@ class Database(object):
 
     def _add_user(self, user_id, lang_id, first_name, last_name, username):
         try:
-            self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0);", [str(user_id), first_name, last_name, username])
+            self.cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, 0, 0, 0,10, 0, 0);", [str(user_id), first_name, last_name, username])
             self.cursor.execute("INSERT INTO chats VALUES (?, ?);", [str(user_id), lang_id])
             self.connection.commit()
         except sqlite3.IntegrityError:

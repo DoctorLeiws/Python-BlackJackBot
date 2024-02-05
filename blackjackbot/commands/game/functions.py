@@ -107,11 +107,10 @@ async def create_game(update, context):
     game = BlackJackGame(gametype=game_type)
     game.add_player(user_id=user.id, first_name=user.first_name)
     GameStore().add_game(chat.id, game)
-
-    # TODO currently the game starts instantly - this should change with multiplayer rooms
+    points = Database().get_bet(user.id)
     if game.type == BlackJackGame.Type.SINGLEPLAYER:
         await update.effective_message.reply_text(translator("game_starts_now").format("", get_cards_string(game.dealer, lang_id)))
         await players_turn(update, context)
     else:
         text = translator("mp_request_join").format(game.get_player_list())
-        await update.effective_message.reply_text(text=text, reply_markup=get_join_keyboard(game.id, lang_id))
+        await update.effective_message.reply_text(text=text, reply_markup=get_join_keyboard(game.id, lang_id,points))

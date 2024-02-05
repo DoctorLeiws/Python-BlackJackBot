@@ -4,7 +4,7 @@ from telegram.constants import ParseMode
 
 import blackjack.errors as errors
 from blackjack.game import BlackJackGame
-from blackjackbot.commands.util import html_mention, get_game_keyboard, get_join_keyboard, get_start_keyboard, remove_inline_keyboard
+from blackjackbot.commands.util import html_mention, get_game_keyboard, get_bet_keyboard,get_join_keyboard, get_start_keyboard, remove_inline_keyboard
 from blackjackbot.commands.util.decorators import needs_active_game
 from blackjackbot.errors import NoActiveGameException
 from blackjackbot.gamestore import GameStore
@@ -101,13 +101,13 @@ async def join_callback(update, context):
     translator = Translator(lang_id=lang_id)
 
     game = GameStore().get_game(chat.id)
-
+    points = Database().get_bet(user_id=user.id)
     if not await is_button_affiliated(update, context, game, lang_id):
         return
     try:
         game.add_player(user.id, user.first_name)
         await update.effective_message.edit_text(text=translator("mp_request_join").format(game.get_player_list()),
-                                           reply_markup=get_join_keyboard(game.id, lang_id))
+                                           reply_markup=get_join_keyboard(game.id, lang_id,points))
         await update.callback_query.answer(translator("mp_join_callback").format(user.first_name))
         if len(game.players) >= game.MAX_PLAYERS:
             await update.effective_message.edit_reply_markup(reply_markup=get_start_keyboard(lang_id))
@@ -186,3 +186,30 @@ async def newgame_callback(update, context):
 
 async def rules_cmd(update, context):
     await update.effective_message.reply_text("Rules:\n\n- Black Jack pays 3 to 2\n- Dealer must stand on 17 and must draw to 16\n- Insurance pays 2 to 1")
+
+async def enterbet_callback(update, context):
+    chat = update.effective_chat
+    user = update.effective_user
+    lang_id = Database().get_lang_id(chat.id)
+    points = Database().get_bet(user_id=user.id)
+    await update.effective_message.edit_reply_markup(reply_markup=get_bet_keyboard(points,lang_id))
+
+async def adjustbet_callback(update, context):
+    user = update.effective_user
+    chat = update.effective_chat
+    lang_id = Database().get_lang_id(chat.id)
+    points = int(update.callback_query.data.split("_")[1])
+    current_points = Database().get_bet(user.id)
+    if(current_points + points <= 0):
+        return
+    Database().set_bet(user.id, current_points + points)
+    await update.effective_message.edit_reply_markup(reply_markup=get_bet_keyboard(current_points + points,lang_id))
+
+
+async def back_callback(update, context):
+    chat = update.effective_chat
+    user = update.effective_user
+    game = GameStore().get_game(chat.id)
+    lang_id = Database().get_lang_id(chat.id)
+    points = Database().get_bet(user.id) 
+    await update.effective_message.edit_reply_markup(reply_markup=get_join_keyboard(game.id,lang_id,points))
