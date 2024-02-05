@@ -16,3 +16,5 @@
 Afterwards just run `python3 bot.py` and if done right, you'll be left with a working bot.
 
 ### 2.) 多人环境的启动
+
+您可以创建自己的私人群，将机器人添加至群中，通过命令行即可启动。

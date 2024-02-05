@@ -85,7 +85,7 @@ async def next_player(update, context):
         game.stop(-1)
         return
 
-    players_turn(update, context)
+    await players_turn(update, context)
 
 
 async def create_game(update, context):

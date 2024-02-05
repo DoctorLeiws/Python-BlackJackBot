@@ -11,7 +11,7 @@ from database import Database
 logger = logging.getLogger(__name__)
 
 
-def language_cmd(update, context):
+async def language_cmd(update, context):
     """
     Handler for /language commands
     """
@@ -25,10 +25,10 @@ def language_cmd(update, context):
     lang_keyboard = InlineKeyboardMarkup(build_menu(buttons, n_cols=3))
 
     lang_id = Database().get_lang_id(update.effective_chat.id)
-    update.message.reply_text(text=translate("select_lang", lang_id), reply_markup=lang_keyboard)
+    await update.message.reply_text(text=translate("select_lang", lang_id), reply_markup=lang_keyboard)
 
 
-def language_callback(update, context):
+async def language_callback(update, context):
     """
     Callback function to handle inline buttons of the /language menu for changing the language
     """
@@ -38,7 +38,7 @@ def language_callback(update, context):
     # Inform user about language change
     lang = get_language_info(lang_id)
     lang_changed_text = translate("lang_changed", lang_id).format(lang.get("display_name"))
-    update.effective_message.edit_text(text=lang_changed_text, reply_markup=None)
+    await update.effective_message.edit_text(text=lang_changed_text, reply_markup=None)
 
     Database().set_lang_id(lang_id=lang_id, chat_id=update.effective_chat.id)
     logger.debug("Language changed to '{}' for user {}".format(lang_id, update.effective_user.id))

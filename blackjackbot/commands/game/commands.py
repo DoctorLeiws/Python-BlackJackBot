@@ -17,19 +17,11 @@ from .functions import create_game, players_turn, next_player, is_button_affilia
 async def start_cmd(update, context):
     """Handles messages contianing the /start command. Starts a game for a specific user"""
     user = update.effective_user
-    chat = update.effective_chat
-    lang_id = Database().get_lang_id(chat.id)
-    translator = Translator(lang_id=lang_id)
-
     Database().add_user(user.id, user.language_code, user.first_name, user.last_name, user.username)
-
     try:
         GameStore().get_game(update.effective_chat.id)
-        # TODO notify user that there is a running game already?
     except NoActiveGameException:
-        # If there is no game, we create one
         await create_game(update, context)
-
 
 async def start_callback(update, context):
     """Starts a game that has been created already"""
@@ -41,7 +33,7 @@ async def start_callback(update, context):
     try:
         game = GameStore().get_game(update.effective_chat.id)
 
-        if not is_button_affiliated(update, context, game, lang_id):
+        if not await is_button_affiliated(update, context, game, lang_id):
             return
     except NoActiveGameException:
         await update.callback_query.answer(translator("mp_no_created_game_callback"))
@@ -70,7 +62,7 @@ async def start_callback(update, context):
         players_are = ""
 
     await update.effective_message.edit_text(translator("game_starts_now").format(players_are, get_cards_string(game.dealer, lang_id)))
-    players_turn(update, context)
+    await players_turn(update, context)
 
 
 @needs_active_game
@@ -110,7 +102,7 @@ async def join_callback(update, context):
 
     game = GameStore().get_game(chat.id)
 
-    if not is_button_affiliated(update, context, game, lang_id):
+    if not await is_button_affiliated(update, context, game, lang_id):
         return
 
     try:
@@ -123,7 +115,7 @@ async def join_callback(update, context):
         if len(game.players) >= game.MAX_PLAYERS:
             await update.effective_message.edit_reply_markup(reply_markup=get_start_keyboard(lang_id))
     except errors.GameAlreadyRunningException:
-        remove_inline_keyboard(update, context)
+        await remove_inline_keyboard(update, context)
         await update.callback_query.answer(translator("mp_game_already_begun_callback"))
     except errors.MaxPlayersReachedException:
         await update.effective_message.edit_reply_markup(reply_markup=get_start_keyboard(lang_id))
@@ -152,7 +144,7 @@ async def hit_callback(update, context):
 
     try:
         if user.id != player.user_id:
-            update.callback_query.answer(translator("mp_not_your_turn_callback").format(user.first_name))
+            await update.callback_query.answer(translator("mp_not_your_turn_callback").format(user.first_name))
             return
 
         game.draw_card()

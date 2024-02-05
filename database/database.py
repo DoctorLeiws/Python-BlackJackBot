@@ -75,7 +75,7 @@ class Database(object):
 
         cursor.execute("CREATE TABLE IF NOT EXISTS 'chats'"
                        "('chat_id' INTEGER NOT NULL,"
-                       "'lang_id' TEXT NOT NULL DEFAULT 'en',"
+                       "'lang_id' TEXT NOT NULL DEFAULT 'cn',"
                        "PRIMARY KEY('chat_id'));")
         connection.commit()
         connection.close()
